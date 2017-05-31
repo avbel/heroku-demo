@@ -1,0 +1,77 @@
+{
+  "$schema":"http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion":"1.0.0.0",
+  "parameters":{
+    "siteName":{
+      "type":"string",
+      "metadata": {
+        "description": "The name of the web app that you wish to create."
+      }
+    },
+    "siteLocation":{
+      "type":"string",
+      "defaultValue": "East US 2",
+      "metadata": {
+        "description": "The location to use for creating the web app and hosting plan."
+      }
+    },
+    "bandwidthUserId":{
+      "type":"string",
+      "metadata":{
+        "description":"Bandwidth User Id"
+      }
+    },
+    "bandwidthApiToken":{
+      "type":"string",
+      "metadata":{
+        "description":"Bandwidth Api Token"
+      }
+    },
+    "bandwidthApiSecret":{
+      "type":"string",
+      "metadata":{
+        "description":"Bandwidth Api Secret"
+      }
+    }
+  },
+  "resources":[
+    {
+      "apiVersion":"2015-08-01",
+      "name":"[parameters('siteName')]",
+      "type":"Microsoft.Web/Sites",
+      "location": "[parameters('siteLocation')]",
+      "properties":{
+        "name":"[parameters('siteName')]"
+      },
+      "resources":[
+        {
+          "apiVersion":"2015-08-01",
+          "type":"sourcecontrols",
+          "name":"web",
+          "dependsOn": [
+            "[resourceId('Microsoft.Web/Sites', parameters('siteName'))]",
+            "[resourceId('Microsoft.Web/Sites/config', parameters('siteName'), 'appsettings')]"
+          ],
+          "properties":{
+            "RepoUrl":"GIT_REPOSITORY_URL_HERE",
+            "branch":"master",
+            "IsManualIntegration": true
+          }
+        },
+        {
+          "apiVersion":"2015-08-01",
+          "type":"config",
+          "name":"appsettings",
+          "dependsOn": [
+            "[resourceId('Microsoft.Web/Sites', parameters('siteName'))]"
+          ],
+          "properties":{
+            "BANDWIDTH_USER_ID": "[parameters('bandwidthUserId')]",
+            "BANDWIDTH_API_TOKEN": "[parameters('bandwidthApiToken')]",
+            "BANDWIDTH_API_SECRET": "[parameters('bandwidthApiSecret')]"
+          }
+        }
+      ]
+    }
+  ]
+}
